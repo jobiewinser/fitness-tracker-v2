@@ -1,0 +1,19 @@
+{%extends 'tracker/base.html'%}
+{%block body%}
+        <progress id="content-loader" class="htmx-indicator" max="100"></progress>
+        <aside>
+            <ul>
+                <li>DEBUG: User:{{user.username}}</li>
+                {%if user.is_authenticated%}
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+                {%else%}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'sign-up' %}">Sign up</a></li>
+                {%endif%}
+                <li><a hx-get="{% url 'token' %}" hx-push-url="true"
+                        hx-target="#content" hx-swap="innerHTML" 
+                        hx-indicator="#content-loader">Token</a></li>
+            </ul>
+        </aside>
+        <div id="content">{% block content %}{% endblock %}</div>
+{%endblock%}

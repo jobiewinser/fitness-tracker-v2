@@ -1,0 +1,17 @@
+{%extends 'tracker/base.html'%}
+{%block scripts%}
+{{block.super}}
+<script>
+    $(document).ready(function () {
+    });
+</script>
+{%endblock%}
+
+{%block body%}
+    <h2>Sign up</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Sign Up</button>
+    </form>
+{%endblock%}

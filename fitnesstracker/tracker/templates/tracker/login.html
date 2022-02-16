@@ -1,0 +1,50 @@
+{%extends 'tracker/base.html'%}
+{%block scripts%}
+{{block.super}}
+<script>
+
+    $(document).ready(function () {
+        {% comment %} $("#login-form").submit(function(e) {
+            e.preventDefault();
+            $('#login-message').attr('hidden', true);
+            let respStatus = $.ajax({
+                type: 'POST',
+                url: '/login', 
+                data: { 'password':$('#password').val(),
+                        'username':$('#username').val()},
+                
+                headers: { "X-CSRFToken": '{{csrf_token}}' },
+                success: function (responseData, textStatus, jqXHR) {
+                    $('#login-message').attr('hidden', false);
+                    $('#login-message').html(responseData);
+                    $('#login-message').css('color', 'green');
+                    window.location.href = '/';
+                    
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('#login-message').attr('hidden', false);
+                    $('#login-message').html(textStatus);
+                    $('#login-message').html(textStatus);
+                    $('#login-message').css('color', 'red');
+                }
+            })
+            
+        }); {% endcomment %}
+    });
+</script>
+{%endblock%}
+
+{%block body%}
+{% comment %} <form id="login-form" method="POST">
+    <input type="text" placeholder="username" id="username"/>
+    <input type="text" placeholder="password" id="password"/>
+    <button type="submit">Login</button>
+    <span id="login-message"></span>
+</form> {% endcomment %}
+    <h2>Log In</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Log In</button>
+    </form>
+{%endblock%}
