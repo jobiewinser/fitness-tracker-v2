@@ -6,21 +6,39 @@ class CustomUser(AbstractUser):
     def get_or_create_profile(self):
         try:
             profile, created = Profile.objects.get_or_create(user = self)
+            print(profile)
         except Exception as e:
             pass
         return profile
 
+    def save(self, *args, **kwargs):
+        return super(CustomUser, self).save(*args, **kwargs)
+
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, related_name='profile', on_delete=models.CASCADE)
-    fav_colour = models.CharField(blank=True, null=True, max_length=120)
 
+    COLOUR_CHOICES = (
+        ('a', 'Black'),
+        ('b', 'DarkBlue'),
+        ('c', 'DarkSlateGray'),
+    )
+    fav_colour = models.CharField(max_length=20, default="a", choices=COLOUR_CHOICES)
+    
+    WEIGHT_UNIT_CHOICES = (
+        ('a', 'kg'),
+        ('b', 'lb'),
+        ('c', 'stone'),
+    )
+    weight_unit = models.CharField(max_length=20, default="a", choices=WEIGHT_UNIT_CHOICES)
     def save(self, *args, **kwargs):
-        if not self.pk:
-            self.fav_colour = 'black'
-        super(Profile, self).save(*args, **kwargs)
+        return super(Profile, self).save(*args, **kwargs)
 
 class WorkOut(models.Model):
     pass
+
+class ImageModel(models.Model):
+    image = models.ImageField(upload_to="uploads/exercises")
+
 
 class Exercise(models.Model):
     name = models.CharField(max_length=50, null=False, blank=False)
@@ -29,8 +47,8 @@ class Exercise(models.Model):
         null=True,
         blank=True
     )
-    # completed = models.BooleanField(default=False)
-
+    images = models.ManyToManyField(ImageModel)
+    
 class ExerciseSet(models.Model):
     profile = models.ForeignKey(Profile, null=False, blank=False, on_delete=models.CASCADE)
     exercise = models.ForeignKey(Exercise, null=False, blank=False, on_delete=models.CASCADE)

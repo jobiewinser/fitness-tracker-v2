@@ -6,9 +6,11 @@ from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.conf import settings
-from django.views.generic.edit import CreateView
-from .forms import UserRegisterForm, UserLoginForm
-
+from django.views.generic.edit import CreateView, UpdateView
+from .forms import *
+from .models import CustomUser, Exercise
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 # class LoginView(TemplateView):
 #     template_name = 'tracker/login.html'
 #     def post(self, request):
@@ -43,7 +45,29 @@ class SignUpView(SuccessMessageMixin, CreateView):
     form_class = UserRegisterForm
     success_message = "Your profile was created successfully"
 
+class ExerciseCreateView(SuccessMessageMixin, CreateView):
+    template_name = 'tracker/exercise_create.html'
+    success_url = "/"
+    form_class = ExerciseCreateForm
+    success_message = "Your exercise has been added"
+
+class ProfileView(SuccessMessageMixin, UpdateView):
+    template_name = 'tracker/profile.html'
+    success_url = "/"
+    form_class = ProfileForm
+    model = Profile
+    success_message = "Your profile was edited successfully"
+
+    def get_object(self, *args, **kwargs):
+        user = self.request.user
+        return user.profile
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse("index")
+
 def index(request):
+    if request.user.is_authenticated:
+        request.user.get_or_create_profile()
     return render(request, 'tracker/index.html')
 
 def token(request):
@@ -59,3 +83,13 @@ def support(request):
         return render(request, 'tracker/support_full.html')
 
     return render(request, 'tracker/support.html')
+
+def exercise_catalogue(request):
+    queryset = Exercise.objects.filter()
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        # return redirect('index')
+        return render(request, 'tracker/exercise_catalogue_full.html', {'exercises': queryset})
+
+    return render(request, 'tracker/exercise_catalogue.html', {'exercises': queryset})
+
+

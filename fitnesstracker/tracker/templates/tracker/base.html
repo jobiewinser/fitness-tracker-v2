@@ -5,6 +5,17 @@
         {%block scripts%}
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         {%endblock%}
+        
+        {%block styles%}
+        <style>
+            * {
+                {%if user.profile.fav_colour%}
+                    color:{{user.profile.fav_colour}}
+                {%endif%}
+            }
+        </style>
+        {%endblock%}
+
     </head>
 
     <body>

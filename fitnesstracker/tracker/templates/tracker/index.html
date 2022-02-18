@@ -4,7 +4,9 @@
         <aside>
             <ul>
                 <li>DEBUG: User:{{user.username}}</li>
+                <li>DEBUG: Profile:{{user.profile.fav_colour}}, {{user.profile.weight_unit}}</li>
                 {%if user.is_authenticated%}
+                <li><a href="{% url 'profile' %}">Profile</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
                 {%else%}
                 <li><a href="{% url 'login' %}">Login</a></li>
@@ -13,6 +15,12 @@
                 <li><a hx-get="{% url 'token' %}" hx-push-url="true"
                         hx-target="#content" hx-swap="innerHTML" 
                         hx-indicator="#content-loader">Token</a></li>
+                <li><a hx-get="{% url 'exercise-catalogue' %}" hx-push-url="true"
+                        hx-target="#content" hx-swap="innerHTML" 
+                        hx-indicator="#content-loader">Exercise Catalogue</a></li>
+                {%if request.user.is_superuser%}
+                        <li><a href="{% url 'exercise-create' %}">Create Exercise</a></li>
+                {%endif%}
             </ul>
         </aside>
         <div id="content">{% block content %}{% endblock %}</div>
