@@ -1,0 +1,62 @@
+<a hx-get="{% url 'exercise-catalogue' %}" hx-push-url="true"
+                                hx-target="#content" hx-swap="innerHTML" 
+                                hx-indicator="#content-loader">Back</a>
+                                <br>
+<div class="row">
+    <div class="col">
+        <div id="exerciseDetailCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                {% for image in exercise.images.all%}
+                    <button type="button" data-bs-target="#demo" data-bs-slide-to="{{forloop.counter0}}" 
+                    {% if forloop.first %}
+                        class="active"
+                    {%endif%}
+                    ></button>
+                {%endfor%}
+            </div>
+            
+            <div class="carousel-inner">
+                {% for image in exercise.images.all%}
+                    <div class="carousel-item {% if forloop.first %}active{%endif%}">
+                        <img src="{{image.image.url}}" class="d-block w-100">
+                    </div>
+                {%endfor%}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#exerciseDetailCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#exerciseDetailCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+{% comment %} <div id="demo" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        {% for image in exercise.images.all%}
+            <button type="button" data-bs-target="#demo" data-bs-slide-to="{{forloop.counter0}}" 
+            {% if forloop.first %}
+                class="active"
+            {%endif%}
+            ></button>
+        {%endfor%}
+    </div>
+    
+    <div class="carousel-inner">
+        {% for image in exercise.images.all%}
+            <div class="carousel-item {% if forloop.first %}active{%endif%}">
+                <img src="{{image.image.url}}" class="d-block w-100">
+            </div>
+        {%endfor%}
+    </div>
+    
+    <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+</div> {% endcomment %}

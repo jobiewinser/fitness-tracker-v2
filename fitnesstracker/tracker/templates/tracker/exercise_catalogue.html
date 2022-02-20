@@ -1,6 +1,10 @@
-Exercises:
-<ul>
+<div class="row">
 {% for exercise in exercises%}
-    <li>{{exercise.pk}}</li>
+<div class="col" hx-get="/exercise-detail/{{exercise.pk}}" hx-push-url="true"
+    hx-target="#content" hx-swap="innerHTML" 
+    hx-indicator="#content-loader">
+        <h5 style="text-align:center">{{exercise.name}}</h5>
+        <img style="max;width:200px" src="{{exercise.images.all.0.image.url}}"/>
+</div>
 {%endfor%}
-</ul>
+</div>

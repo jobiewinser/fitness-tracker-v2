@@ -1,27 +1,35 @@
 {%extends 'tracker/base.html'%}
 {%block body%}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                        <a class="navbar-brand" href="#">Navbar</a>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                                <ul class="navbar-nav">
+                                        {%if user.is_authenticated%}
+                                                <li class="nav-item"><a href="{% url 'profile' %}">Profile</a></li>
+                                                <li class="nav-item"><a href="{% url 'logout' %}">Logout</a></li>
+                                        {%else%}
+                                                <li class="nav-item"><a href="{% url 'login' %}">Login</a></li>
+                                                <li class="nav-item"><a href="{% url 'sign-up' %}">Sign up</a></li>
+                                        {%endif%}
+                                        <li class="nav-item"><a hx-get="{% url 'token' %}" hx-push-url="true"
+                                                hx-target="#content" hx-swap="innerHTML" 
+                                                hx-indicator="#content-loader">Token</a></li>
+                                        <li class="nav-item"><a hx-get="{% url 'exercise-catalogue' %}" hx-push-url="true"
+                                                hx-target="#content" hx-swap="innerHTML" 
+                                                hx-indicator="#content-loader">Exercise Catalogue</a></li>
+                                        {%if request.user.is_superuser%}
+                                                <li class="nav-item"><a href="{% url 'exercise-create' %}">Create Exercise</a></li>
+                                        {%endif%}
+                                </ul>
+                        </div>
+                </div>
+        </nav>
+
         <progress id="content-loader" class="htmx-indicator" max="100"></progress>
-        <aside>
-            <ul>
-                <li>DEBUG: User:{{user.username}}</li>
-                <li>DEBUG: Profile:{{user.profile.fav_colour}}, {{user.profile.weight_unit}}</li>
-                {%if user.is_authenticated%}
-                <li><a href="{% url 'profile' %}">Profile</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-                {%else%}
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'sign-up' %}">Sign up</a></li>
-                {%endif%}
-                <li><a hx-get="{% url 'token' %}" hx-push-url="true"
-                        hx-target="#content" hx-swap="innerHTML" 
-                        hx-indicator="#content-loader">Token</a></li>
-                <li><a hx-get="{% url 'exercise-catalogue' %}" hx-push-url="true"
-                        hx-target="#content" hx-swap="innerHTML" 
-                        hx-indicator="#content-loader">Exercise Catalogue</a></li>
-                {%if request.user.is_superuser%}
-                        <li><a href="{% url 'exercise-create' %}">Create Exercise</a></li>
-                {%endif%}
-            </ul>
-        </aside>
+
         <div id="content">{% block content %}{% endblock %}</div>
 {%endblock%}

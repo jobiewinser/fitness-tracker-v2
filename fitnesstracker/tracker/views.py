@@ -8,9 +8,12 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.conf import settings
 from django.views.generic.edit import CreateView, UpdateView
 from .forms import *
-from .models import CustomUser, Exercise
+from .models import *
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+import os
+import io
+import PIL.Image as Image
 # class LoginView(TemplateView):
 #     template_name = 'tracker/login.html'
 #     def post(self, request):
@@ -51,6 +54,20 @@ class ExerciseCreateView(SuccessMessageMixin, CreateView):
     form_class = ExerciseCreateForm
     success_message = "Your exercise has been added"
 
+
+    def post(self, request, *args, **kwargs):
+        exercise = Exercise(name=request.POST['name'], alternative_names=request.POST['alternative_names'].split(','))
+        exercise.save()
+        try:
+            for file in request.FILES.getlist('images'):
+                image = ImageModel(image = file)
+                image.save()
+                exercise.images.add(image)
+            exercise.save()
+            return HttpResponseRedirect(self.success_url)
+        except Exception as e:
+            return HttpResponse(status=500)
+        
 class ProfileView(SuccessMessageMixin, UpdateView):
     template_name = 'tracker/profile.html'
     success_url = "/"
@@ -92,4 +109,8 @@ def exercise_catalogue(request):
 
     return render(request, 'tracker/exercise_catalogue.html', {'exercises': queryset})
 
-
+def exercise_detail(request, **kwargs):
+    exercise = Exercise.objects.get(pk=kwargs['pk'])
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'tracker/exercise_detail_full.html', {'exercise': exercise})
+    return render(request, 'tracker/exercise_detail.html', {'exercise': exercise})

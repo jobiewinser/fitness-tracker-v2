@@ -29,8 +29,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("SERVER") == "development"
 
-ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ['http://fitness.jobiewinser.co.uk']
+ALLOWED_HOSTS = ['http://fitness.jobiewinser.co.uk', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['http://fitness.jobiewinser.co.uk', 'http://127.0.0.1']
 
 # Application definition
 
@@ -134,3 +134,6 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = "tracker.CustomUser"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

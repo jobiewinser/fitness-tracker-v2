@@ -38,6 +38,8 @@ class WorkOut(models.Model):
 
 class ImageModel(models.Model):
     image = models.ImageField(upload_to="uploads/exercises")
+    def save(self, *args, **kwargs):
+        return super(ImageModel, self).save(*args, **kwargs)
 
 
 class Exercise(models.Model):
@@ -48,6 +50,8 @@ class Exercise(models.Model):
         blank=True
     )
     images = models.ManyToManyField(ImageModel)
+    def save(self, *args, **kwargs):
+        return super(Exercise, self).save(*args, **kwargs)
     
 class ExerciseSet(models.Model):
     profile = models.ForeignKey(Profile, null=False, blank=False, on_delete=models.CASCADE)

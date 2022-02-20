@@ -25,7 +25,10 @@ class ProfileForm(ModelForm):
 
 class ExerciseCreateForm(ModelForm):
     alternative_names = SimpleArrayField(forms.CharField(max_length=100), delimiter=',')
-    images = MultiImageField(min_num=1, max_num=20)
+    # images = MultiImageField(min_num=1, max_num=20)
+    images = forms.FileField(label='Select a file to upload', widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False)
     class Meta:
         model = Exercise
+        # fields = ['name']
         fields = ['name', 'alternative_names', 'images']
+        
