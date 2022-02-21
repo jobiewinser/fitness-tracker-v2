@@ -1,10 +1,33 @@
+<style>
+    .ms-n5 {
+        margin-left: -40px;
+        height:40px;
+    }
+    .rounded-pill {
+        height:40px;
+    }
+</style>
+
 <div class="row">
-{% for exercise in exercises%}
-<div class="col" hx-get="/exercise-detail/{{exercise.pk}}" hx-push-url="true"
-    hx-target="#content" hx-swap="innerHTML" 
-    hx-indicator="#content-loader">
-        <h5 style="text-align:center">{{exercise.name}}</h5>
-        <img style="max;width:200px" src="{{exercise.images.all.0.image.url}}"/>
+    <div class="col-md-5 mx-auto">
+        <div class="input-group">
+            <input class="form-control border-end-0 border rounded-pill" 
+                type="search" 
+                placeholder="search" 
+                name="search"
+                hx-post="/exercise-catalogue-search-results" 
+                hx-trigger="keyup changed delay:500ms, search" 
+                hx-target="#search-results" 
+                hx-indicator=".htmx-indicator">
+            <span class="input-group-append">
+                <button class="btn btn-outline-secondary bg-white border-bottom-0 border rounded-pill ms-n5" id="" type="button">
+                    <i class="fa fa-search"></i>
+                </button>
+            </span>
+        </div>
+    </div>
 </div>
-{%endfor%}
+
+<div class="row" id="search-results">
+{%include 'tracker/exercise_catalogue_search_results.html'%}
 </div>

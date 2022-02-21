@@ -1,8 +1,12 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
+import hashlib
+import random
+import uuid
 
 class CustomUser(AbstractUser):
+    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     def get_or_create_profile(self):
         try:
             profile, created = Profile.objects.get_or_create(user = self)
@@ -14,9 +18,20 @@ class CustomUser(AbstractUser):
     def save(self, *args, **kwargs):
         return super(CustomUser, self).save(*args, **kwargs)
 
-class Profile(models.Model):
-    user = models.OneToOneField(CustomUser, related_name='profile', on_delete=models.CASCADE)
+class ImageModel(models.Model):
+    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    image = models.ImageField(upload_to="uploads/exercises")
+    uploaded_date = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    class Meta:
+        get_latest_by = 'uploaded_date'
 
+    def save(self, *args, **kwargs):
+        return super(ImageModel, self).save(*args, **kwargs)
+
+class Profile(models.Model):
+    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    user = models.OneToOneField(CustomUser, related_name='profile', on_delete=models.CASCADE)
+    pictures = models.ManyToManyField(ImageModel)
     COLOUR_CHOICES = (
         ('a', 'Black'),
         ('b', 'DarkBlue'),
@@ -34,15 +49,13 @@ class Profile(models.Model):
         return super(Profile, self).save(*args, **kwargs)
 
 class WorkOut(models.Model):
+    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     pass
-
-class ImageModel(models.Model):
-    image = models.ImageField(upload_to="uploads/exercises")
-    def save(self, *args, **kwargs):
-        return super(ImageModel, self).save(*args, **kwargs)
 
 
 class Exercise(models.Model):
+    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    archived = models.BooleanField(null=False, blank=False, default=True)
     name = models.CharField(max_length=50, null=False, blank=False)
     alternative_names = ArrayField(
         models.CharField(max_length=50, blank=True, null=True),
@@ -54,6 +67,7 @@ class Exercise(models.Model):
         return super(Exercise, self).save(*args, **kwargs)
     
 class ExerciseSet(models.Model):
+    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     profile = models.ForeignKey(Profile, null=False, blank=False, on_delete=models.CASCADE)
     exercise = models.ForeignKey(Exercise, null=False, blank=False, on_delete=models.CASCADE)
     work_out = models.ForeignKey(WorkOut, null=False, blank=False, on_delete=models.CASCADE)
@@ -61,10 +75,12 @@ class ExerciseSet(models.Model):
     performed = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     
 class ExerciseSubSet(models.Model):
+    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     exercise_set = models.ForeignKey(ExerciseSet, null=False, blank=False, on_delete=models.CASCADE)
     to_failure = models.BooleanField(null=False, blank=False, default=False)
     
 class WeighIn(models.Model):
+    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     profile = models.ForeignKey(Profile, null=False, blank=False, on_delete=models.CASCADE)
     recorded = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     weight = models.FloatField(null=False, blank=False) 

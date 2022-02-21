@@ -1,0 +1,8 @@
+{% for exercise in exercises%}
+<div class="col" hx-get="/exercise-detail/{{exercise.pk}}" hx-push-url="true"
+    hx-target="#content" hx-swap="innerHTML" 
+    hx-indicator="#content-loader" style="max-width:220px; text-align:center">
+        <h5 style="text-align:center">{{exercise.name}}</h5>
+        <img style="max-width:200px" src="{{exercise.images.all.0.image.url}}"/>
+</div>
+{%endfor%}

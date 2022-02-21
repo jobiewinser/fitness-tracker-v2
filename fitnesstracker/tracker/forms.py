@@ -19,9 +19,10 @@ class UserLoginForm(AuthenticationForm):
         # fields = ['email']
 
 class ProfileForm(ModelForm):
+    pictures = forms.FileField(label='Select a file to upload', widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False)
     class Meta:
         model = Profile
-        fields = ['fav_colour','weight_unit']
+        fields = ['fav_colour','weight_unit', 'pictures']
 
 class ExerciseCreateForm(ModelForm):
     alternative_names = SimpleArrayField(forms.CharField(max_length=100), delimiter=',')
