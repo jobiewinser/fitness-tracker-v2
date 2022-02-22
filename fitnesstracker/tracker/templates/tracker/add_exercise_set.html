@@ -1,0 +1,29 @@
+<script>$('.select2').select2();</script>
+<select style="max-width:400px" class="select2 form-control form-select p-3" name="set_{{counter}}"> 
+    {% for exercise in exercises%}
+        <option value="{{exercise.pk}}">{{exercise.pk}}</option>
+    {%endfor%}
+</select>
+<br>
+<br>
+
+<div id="exercise-super-set">
+    {%include 'tracker/exercise_super_set_button.html'%}
+</div>
+
+<br>
+<hr>
+{% comment %} guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+exercise = models.ForeignKey(Exercise, null=False, blank=False, on_delete=models.CASCADE)
+work_out = models.ForeignKey(WorkOut, null=False, blank=False, on_delete=models.CASCADE)
+super_set_exercise_set = models.OneToOneField("ExerciseSet", null=True, default=None, on_delete=models.SET_NULL)
+performed = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+to_failure = models.BooleanField(null=False, blank=False, default=False) {% endcomment %}
+
+
+<div id="exercise-set">
+    <button class="btn btn-warning"
+        hx-get="/add-exercise-set/{{counter}}" hx-push-url="false" hx-target="#exercise-set" hx-swap="outerHTML" hx-indicator="#content-loader">
+            Add Set {{counter}}
+    </button>
+</div>

@@ -11,6 +11,7 @@ from .forms import *
 from .models import *
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from rest_framework.views import APIView
 
 from django.db.models import Q
 # class LoginView(TemplateView):
@@ -74,14 +75,17 @@ class ProfileView(SuccessMessageMixin, UpdateView):
     success_message = "Your profile was edited successfully"
 
     def get_object(self, *args, **kwargs):
-        user = self.request.user
-        return user.profile
+        return self.request.user.profile
 
     def get_success_url(self, *args, **kwargs):
         return reverse("index")
 
     def post(self, request, *args, **kwargs):
-        profile, created = Profile.objects.get_or_create(user=request.user, fav_colour=request.POST['fav_colour'], weight_unit=request.POST['weight_unit'])
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        profile.display_name=request.POST['display_name']
+        profile.fav_colour=request.POST['fav_colour']
+        profile.weight_unit=request.POST['weight_unit']
+
         profile.save()
         try:
             for file in request.FILES.getlist('pictures'):
@@ -121,11 +125,9 @@ def exercise_catalogue(request):
 
 
 def exercise_catalogue_search_results(request):
-    queryset = Exercise.objects.filter(Q(name__icontains=request._post['search']) | Q(alternative_names__icontains=request._post['search']))
-    # if request.META.get("HTTP_HX_REQUEST") != 'true':
-    #     # return redirect('index')
-    #     return render(request, 'tracker/exercise_catalogue_full.html', {'exercises': queryset})
-
+    queryset = Exercise.objects.all()
+    if 'search' in request.POST:
+        queryset = queryset.filter(Q(name__icontains=request._post['search']) | Q(alternative_names__icontains=request._post['search']))
     return render(request, 'tracker/exercise_catalogue_search_results.html', {'exercises': queryset})
 
 def exercise_detail(request, **kwargs):
@@ -133,3 +135,52 @@ def exercise_detail(request, **kwargs):
     if request.META.get("HTTP_HX_REQUEST") != 'true':
         return render(request, 'tracker/exercise_detail_full.html', {'exercise': exercise})
     return render(request, 'tracker/exercise_detail.html', {'exercise': exercise})
+
+
+def workouts(request, **kwargs):
+    workouts = WorkOut.objects.filter(profile=request.user.profile)
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'tracker/workouts_full.html', {'workouts': workouts})
+    return render(request, 'tracker/workouts.html', {'workouts': workouts})
+
+class EditWorkoutView(APIView):
+    def get(self, request, **kwargs):
+        try:
+            workout = WorkOut.objects.get(pk=kwargs['pk'])
+        except:
+            workout = WorkOut()
+            if not workout.name:
+                existing_unnamed_workout = WorkOut.objects.filter(profile=request.user.profile, name__in="Custom Workout")
+            if existing_unnamed_workout:
+                counter  = existing_unnamed_workout.count()
+            else:
+                counter = 1
+            workout.name = f"Custom Workout - {counter}"
+        if request.META.get("HTTP_HX_REQUEST") != 'true':
+            return render(request, 'tracker/edit_workout_full.html', {'workout': workout})
+        return render(request, 'tracker/edit_workout.html', {'workout': workout})
+
+
+
+def add_exercise_set(request, **kwargs):
+    queryset = Exercise.objects.all()
+    return render(request, 'tracker/add_exercise_set.html', {'exercises': queryset, 'counter': kwargs['previous_counter']+1})
+def add_exercise_super_set(request, **kwargs):
+    queryset = Exercise.objects.all()
+    return render(request, 'tracker/add_exercise_super_set.html', {'exercises': queryset, 'counter': kwargs['counter']})
+
+    # def post(self, request, *args, **kwargs):
+    #     exercise = Exercise(name=request.POST['name'], alternative_names=request.POST['alternative_names'].split(','))
+    #     exercise.save()
+    #     try:
+    #         for file in request.FILES.getlist('images'):
+    #             image = ImageModel(image = file)
+    #             image.save()
+    #             exercise.images.add(image)
+    #         exercise.save()
+    #         return HttpResponseRedirect(self.success_url)
+    #     except Exception as e:
+    #         return HttpResponse(status=500)
+
+def add_exercise_super_set_button(request, **kwargs):
+    return render(request, 'tracker/exercise_super_set_button.html', {'counter':kwargs['counter']})

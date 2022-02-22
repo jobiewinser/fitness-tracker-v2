@@ -3,23 +3,35 @@
         margin-left: -40px;
         height:40px;
     }
+    .rounded-pill {
+        height:40px;
+    }
 </style>
 
 <div class="row">
+    <div class="col-md-4 mx-auto" style="text-align:right">
+        <button class="btn btn-success"
+        hx-get="/edit-workout/new" hx-push-url="true" hx-target="#content" hx-swap="innerHTML" hx-indicator="#content-loader">
+            Add Workout
+        </button>
+        
+    </div>
     <div class="col-md-4 mx-auto">
         <div class="input-group">
             <input class="form-control border-end-0 border rounded-pill" 
                 type="search" 
                 placeholder="search" 
                 name="search"
-                hx-post="/exercise-catalogue-search-results" 
+                hx-post="/workouts-search-results" 
                 hx-trigger="keyup changed delay:500ms, search" 
                 hx-target="#search-results" 
                 hx-indicator=".htmx-indicator">
         </div>
     </div>
+    <div class="col-4">
+    </div>
 </div>
 
 <div class="row" id="search-results">
-{%include 'tracker/exercise_catalogue_search_results.html'%}
+{%include 'tracker/workouts_search_results.html'%}
 </div>

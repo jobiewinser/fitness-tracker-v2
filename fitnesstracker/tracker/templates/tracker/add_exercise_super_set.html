@@ -1,0 +1,15 @@
+<script>$('.select2').select2();</script>
+<select style="max-width:400px" class="select2 form-control form-select p-3" name="set_{{counter}}"> 
+    {% for exercise in exercises%}
+        <option value="{{exercise.pk}}">{{exercise.pk}}</option>
+    {%endfor%}
+</select>
+<br>
+<br>
+
+<button class="btn btn-danger"
+    hx-get="/add-exercise-super-set-button/{{counter}}" hx-push-url="false" hx-target="#exercise-super-set" hx-swap="innerHTML" hx-indicator="#content-loader">
+        no superset?
+</button>
+<br>
+<hr>

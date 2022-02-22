@@ -17,13 +17,19 @@
 
                         <span class="d-flex">
                         {%if user.is_authenticated%}
-                                <img class="profile_picture" src="{%if request.user.profile.pictures%}{{request.user.profile.pictures.latest.image.url}}{%else%}{% static 'img/default_profile.jpg' %}{%endif%}" 
-                                alt="Avatar">
-                                <a href="{% url 'profile' %}">Profile </a>
-                                <a href="{% url 'logout' %}">Logout</a>
+                                <div class="btn-group">
+                                        <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <img class="profile_picture" src="{%if request.user.profile.pictures%}{{request.user.profile.pictures.latest.image.url}}{%else%}{% static 'img/default_profile.jpg' %}{%endif%}" alt="Avatar">
+                                                {{request.user.profile.display_name}}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                                        </ul>
+                                </div>
                         {%else%}
-                                <a href="{% url 'login' %}">Login</a>
-                                <a href="{% url 'sign-up' %}">Sign up</a>
+                                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                                <a class="nav-link" href="{% url 'sign-up' %}">Sign up</a>
                         {%endif%}
                         </span>
                 </div>
@@ -40,6 +46,14 @@
                                 <h5 style="text-align:center">Exercise Catalogue</h5>
                                 <img style="max-width:200px" src="{% static 'img/catalogue.jpg' %}"/>
                         </div>
+                        
+                        {%if request.user.is_authenticated%}
+                        <div class="col" 
+                                onClick="window.location.href = '{% url 'workouts' %}'" style="max-width:220px; text-align:center">
+                                <h5 style="text-align:center">Workouts</h5>
+                                <img style="max-width:200px" src="{% static 'img/catalogue.jpg' %}"/>
+                        </div>
+                        {%endif%}
                         
                         {%if request.user.is_superuser%}
                         <div class="col" 

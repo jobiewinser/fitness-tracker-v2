@@ -31,6 +31,7 @@ class ImageModel(models.Model):
 class Profile(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(CustomUser, related_name='profile', on_delete=models.CASCADE)
+    display_name = models.CharField(max_length=20, blank=False, null=False, unique=True)
     pictures = models.ManyToManyField(ImageModel)
     COLOUR_CHOICES = (
         ('a', 'Black'),
@@ -50,8 +51,10 @@ class Profile(models.Model):
 
 class WorkOut(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    pass
-
+    profile = models.ForeignKey(Profile, related_name='workouts', on_delete=models.CASCADE) 
+    name = models.CharField(max_length=50, null=False, blank=False)
+    def save(self, *args, **kwargs):
+        return super(WorkOut, self).save(*args, **kwargs)
 
 class Exercise(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -68,16 +71,17 @@ class Exercise(models.Model):
     
 class ExerciseSet(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    profile = models.ForeignKey(Profile, null=False, blank=False, on_delete=models.CASCADE)
     exercise = models.ForeignKey(Exercise, null=False, blank=False, on_delete=models.CASCADE)
     work_out = models.ForeignKey(WorkOut, null=False, blank=False, on_delete=models.CASCADE)
     super_set_exercise_set = models.OneToOneField("ExerciseSet", null=True, default=None, on_delete=models.SET_NULL)
-    performed = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-    
-class ExerciseSubSet(models.Model):
-    guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    exercise_set = models.ForeignKey(ExerciseSet, null=False, blank=False, on_delete=models.CASCADE)
+    # performed = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     to_failure = models.BooleanField(null=False, blank=False, default=False)
+    weight = models.IntegerField(null=False, blank=False, default=0) 
+    reps = models.IntegerField(null=False, blank=False, default=1) 
+    
+# class ExerciseSubSet(models.Model):
+#     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+#     exercise_set = models.ForeignKey(ExerciseSet, null=False, blank=False, on_delete=models.CASCADE)
     
 class WeighIn(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)

@@ -1,0 +1,41 @@
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<style>
+    .ms-n5 {
+        margin-left: -40px;
+        height:40px;
+    }
+    .rounded-pill {
+        height:40px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-4 mx-auto" style="text-align:right">
+        <button class="btn btn-warning"
+        hx-get="/workouts" hx-push-url="true" hx-target="#content" hx-swap="innerHTML" hx-indicator="#content-loader">
+            Back to Workouts
+        </button>
+        
+    </div>
+    <div class="col-md-4 mx-auto">
+    </div>
+    <div class="col-4">
+    </div>
+</div>
+
+<div class="row" id="search-results">
+    <form>
+        <input name="name" value="{{workout.name}}"/>
+        <br>
+        
+        <br>
+        <div id="exercise-set">
+            <button class="btn btn-warning"
+                hx-get="/add-exercise-set/1" hx-push-url="false" hx-target="#exercise-set" hx-swap="outerHTML" hx-indicator="#content-loader">
+                    Add Set 1
+            </button>
+        </div>
+    </form>
+</div>
