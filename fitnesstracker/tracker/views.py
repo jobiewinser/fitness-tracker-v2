@@ -146,9 +146,10 @@ def workouts(request, **kwargs):
 class EditWorkoutView(APIView):
     def get(self, request, **kwargs):
         try:
-            workout = WorkOut.objects.get(pk=kwargs['pk'])
+            workout = WorkOut.objects.get(pk=kwargs['workout_pk'], profile=request.user.profile)
         except:
-            workout = WorkOut()
+            workout = WorkOut(profile=request.user.profile)
+
             if not workout.name:
                 existing_unnamed_workout = WorkOut.objects.filter(profile=request.user.profile, name__in="Custom Workout")
             if existing_unnamed_workout:
@@ -156,18 +157,60 @@ class EditWorkoutView(APIView):
             else:
                 counter = 1
             workout.name = f"Custom Workout - {counter}"
+            workout.save()
+            return HttpResponseRedirect(f'/edit-workout/{workout.pk}')
+        exercises_queryset = Exercise.objects.all()
+    
         if request.META.get("HTTP_HX_REQUEST") != 'true':
-            return render(request, 'tracker/edit_workout_full.html', {'workout': workout})
-        return render(request, 'tracker/edit_workout.html', {'workout': workout})
+            return render(request, 'tracker/edit_workout_full.html', {'workout': workout, 'exercises': exercises_queryset})
+        return render(request, 'tracker/edit_workout.html', {'workout': workout, 'exercises': exercises_queryset})
 
+# PATCH used for saving exercisesets
+    def patch(self, request, **kwargs):
+        self.save_exercise_set(request, **kwargs)
+        return HttpResponse(status=200, )
+
+    def post(self, request, **kwargs):
+        self.save_workout(request, **kwargs)
+        return HttpResponse(status=200, headers={'HX-Redirect':'/workouts'})
+
+    def save_workout(self, request, **kwargs):
+        workout = WorkOut.objects.get(profile=request.user.profile, pk=kwargs['workout_pk'])
+        workout.name = request.POST['name']
+        workout.save()
+        return
+
+    def save_exercise_set(self, request, **kwargs):
+        workout = WorkOut.objects.get(profile=request.user.profile, pk=kwargs['workout_pk'])
+        try:
+            exerciseset = ExerciseSet.objects.get(workout=workout, order_in_workout = int(request.POST['order_in_workout']))
+        except:
+            exerciseset = ExerciseSet(workout=workout, order_in_workout = int(request.POST['order_in_workout']))
+        exerciseset.exercise = Exercise.objects.get(pk=int(request.POST['exercise']))
+        
+        exerciseset.to_failure = 'to_failure' in request.POST
+        exerciseset.weight = int(request.POST['weight'])
+        exerciseset.reps = int(request.POST['reps'])
+        exerciseset.save()
+    # guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    # order_in_workout = models.IntegerField(null=False, blank=False, default=0) 
+    # exercise = models.ForeignKey(Exercise, null=False, blank=False, on_delete=models.CASCADE)
+    # workout = models.ForeignKey(WorkOut, null=False, blank=False, on_delete=models.CASCADE)
+    # super_set_exercise_set = models.OneToOneField("ExerciseSet", null=True, default=None, on_delete=models.SET_NULL)
+    # # performed = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    # to_failure = models.BooleanField(null=False, blank=False, default=False)
+    # weight = models.IntegerField(null=False, blank=False, default=0) 
+    # reps = models.IntegerField(null=False, blank=False, default=1) 
+        return
 
 
 def add_exercise_set(request, **kwargs):
     queryset = Exercise.objects.all()
-    return render(request, 'tracker/add_exercise_set.html', {'exercises': queryset, 'counter': kwargs['previous_counter']+1})
-def add_exercise_super_set(request, **kwargs):
-    queryset = Exercise.objects.all()
-    return render(request, 'tracker/add_exercise_super_set.html', {'exercises': queryset, 'counter': kwargs['counter']})
+    workout = WorkOut.objects.get(profile=request.user.profile, pk=kwargs['workout_pk'])
+    return render(request, 'tracker/add_exercise_set.html', {'exercises': queryset, 'workout':workout, 'counter': kwargs['previous_counter']+1})
+# def add_exercise_super_set(request, **kwargs):
+#     queryset = Exercise.objects.all()
+#     return render(request, 'tracker/add_exercise_super_set.html', {'exercises': queryset, 'counter': kwargs['counter']})
 
     # def post(self, request, *args, **kwargs):
     #     exercise = Exercise(name=request.POST['name'], alternative_names=request.POST['alternative_names'].split(','))
@@ -182,5 +225,5 @@ def add_exercise_super_set(request, **kwargs):
     #     except Exception as e:
     #         return HttpResponse(status=500)
 
-def add_exercise_super_set_button(request, **kwargs):
-    return render(request, 'tracker/exercise_super_set_button.html', {'counter':kwargs['counter']})
+# def add_exercise_super_set_button(request, **kwargs):
+#     return render(request, 'tracker/exercise_super_set_button.html', {'counter':kwargs['counter']})

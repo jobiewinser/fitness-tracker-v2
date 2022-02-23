@@ -1,9 +1,20 @@
+<ul>
 {% for workout in workouts%}
-{% comment %} <div class="col" hx-get="/exercise-detail/{{exercise.pk}}" hx-push-url="true"
-    hx-target="#content" hx-swap="innerHTML" 
-    hx-indicator="#content-loader" style="max-width:220px; text-align:center">
-        <h5 style="text-align:center">{{exercise.name}}</h5>
-        <img style="max-width:200px" src="{{exercise.images.all.0.image.url}}"/>
-</div> {% endcomment %}
-{{workout.pk}}
+<li>
+    {% comment %} <div class="col" hx-get="/exercise-detail/{{exercise.pk}}" hx-push-url="true"
+        hx-target="#content" hx-swap="innerHTML" 
+        hx-indicator="#content-loader" style="max-width:220px; text-align:center">
+            <h5 style="text-align:center">{{exercise.name}}</h5>
+            <img style="max-width:200px" src="{{exercise.images.all.0.image.url}}"/>
+    </div> {% endcomment %}
+    
+    <a
+        hx-get="/edit-workout/{{workout.pk}}" hx-push-url="true" hx-target="#content" hx-swap="innerHTML" hx-indicator="#content-loader">
+            {{workout.name}} 
+    </a>
+    {%for exerciseset in workout.exerciseset_set.all%}
+    <img style="max-width:50px" src="{{exerciseset.exercise.images.all.0.image.url}}"/>
+    {%endfor%}
+</li>
 {%endfor%}
+</ul>

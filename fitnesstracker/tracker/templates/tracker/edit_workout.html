@@ -26,16 +26,26 @@
 </div>
 
 <div class="row" id="search-results">
+    {% comment %} <input name="workout_pk" id="workout_pk" value="{{workout.pk}}" hidden/> {% endcomment %}
     <form>
         <input name="name" value="{{workout.name}}"/>
         <br>
-        
+        {%for exerciseset in workout.exerciseset_set.all%}
+        {% with counter=exerciseset.order_in_workout%}
+        {%include 'tracker/add_exercise_set.html'%}
+        {%endwith%}
+        {%endfor%}
         <br>
         <div id="exercise-set">
             <button class="btn btn-warning"
-                hx-get="/add-exercise-set/1" hx-push-url="false" hx-target="#exercise-set" hx-swap="outerHTML" hx-indicator="#content-loader">
-                    Add Set 1
+                hx-get="/add-exercise-set/{{workout.pk}}/{{workout.exerciseset_set.all.count}}" hx-push-url="false" hx-target="#exercise-set" hx-swap="outerHTML" hx-indicator="#content-loader">
+                    Add Set {{workout.exerciseset_set.all.count}}
             </button>
         </div>
+        <button class="btn btn-primary"
+            hx-post="/edit-workout/{{workout.pk}}" hx-push-url="false" hx-indicator="#content-loader">
+                Save
+        </button>
+        
     </form>
 </div>

@@ -53,6 +53,8 @@ class WorkOut(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     profile = models.ForeignKey(Profile, related_name='workouts', on_delete=models.CASCADE) 
     name = models.CharField(max_length=50, null=False, blank=False)
+    started = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    ended = models.DateTimeField(auto_now_add=False, null=True, blank=True)
     def save(self, *args, **kwargs):
         return super(WorkOut, self).save(*args, **kwargs)
 
@@ -71,8 +73,9 @@ class Exercise(models.Model):
     
 class ExerciseSet(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    order_in_workout = models.IntegerField(null=False, blank=False, default=0) 
     exercise = models.ForeignKey(Exercise, null=False, blank=False, on_delete=models.CASCADE)
-    work_out = models.ForeignKey(WorkOut, null=False, blank=False, on_delete=models.CASCADE)
+    workout = models.ForeignKey(WorkOut, null=False, blank=False, on_delete=models.CASCADE)
     super_set_exercise_set = models.OneToOneField("ExerciseSet", null=True, default=None, on_delete=models.SET_NULL)
     # performed = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     to_failure = models.BooleanField(null=False, blank=False, default=False)

@@ -1,29 +1,48 @@
-<script>$('.select2').select2();</script>
-<select style="max-width:400px" class="select2 form-control form-select p-3" name="set_{{counter}}"> 
+{% comment %} <script>$('.select2').select2();</script> {% endcomment %}
+{%if exerciseset%}
+    <input name="order_in_workout" id="order_in_workout_{{counter}}" value="{{counter}}" hidden>
+{%else%}
+    <input name="order_in_workout" id="order_in_workout_{{counter}}" value="{{counter}}" hidden>
+{%endif%}
+<select style="max-width:400px" class="select2 form-control form-select p-3" id="exercise_{{counter}}" name="exercise"> 
     {% for exercise in exercises%}
-        <option value="{{exercise.pk}}">{{exercise.pk}}</option>
+        <option {%if exerciseset.exercise.pk == exercise.pk%}selected{%endif%} value="{{exercise.pk}}">{{exercise.name}}</option>
     {%endfor%}
 </select>
 <br>
+<label for="weight_#{{counter}}">Weight</label>
+<input type="number" id="weight_{{counter}}" name="weight" value="{{exerciseset.weight}}">
 <br>
+<label for="reps_#{{counter}}">Reps</label>
+<input type="number" id="reps_{{counter}}" name="reps" value="{{exerciseset.reps}}">
+<br>
+<label for="tofailure_#{{counter}}">To Failure?</label>
+<input type="checkbox" id="to_failure_{{counter}}" name="to_failure" {%if exerciseset.to_failure%}checked{%endif%}>
+<br>
+<button class="btn btn-success"
+    hx-patch="/edit-workout/{{workout.pk}}" hx-push-url="false" hx-include="#order_in_workout_{{counter}}, #exercise_{{counter}}, #weight_{{counter}}, #reps_{{counter}}, #to_failure_{{counter}}" hx-indicator="#content-loader">
+        Save 
+</button>
 
-<div id="exercise-super-set">
+{% comment %} <div id="exercise-super-set">
     {%include 'tracker/exercise_super_set_button.html'%}
-</div>
+</div> {% endcomment %}
 
 <br>
 <hr>
 {% comment %} guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 exercise = models.ForeignKey(Exercise, null=False, blank=False, on_delete=models.CASCADE)
-work_out = models.ForeignKey(WorkOut, null=False, blank=False, on_delete=models.CASCADE)
+workout = models.ForeignKey(WorkOut, null=False, blank=False, on_delete=models.CASCADE)
 super_set_exercise_set = models.OneToOneField("ExerciseSet", null=True, default=None, on_delete=models.SET_NULL)
 performed = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 to_failure = models.BooleanField(null=False, blank=False, default=False) {% endcomment %}
 
 
+{%if not exerciseset%}
 <div id="exercise-set">
     <button class="btn btn-warning"
-        hx-get="/add-exercise-set/{{counter}}" hx-push-url="false" hx-target="#exercise-set" hx-swap="outerHTML" hx-indicator="#content-loader">
+        hx-get="/add-exercise-set/{{workout.pk}}/{{counter}}" hx-push-url="false" hx-target="#exercise-set" hx-swap="outerHTML" hx-indicator="#content-loader">
             Add Set {{counter}}
     </button>
 </div>
+{%endif%}
