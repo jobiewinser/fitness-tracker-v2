@@ -1,17 +1,17 @@
 {%extends 'tracker/base.html'%}
 {%load static%}
 {%block body%}
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light" style="width:100%">
                 <div class="container-fluid">
-                        <a class="navbar-brand" href="{% url 'index' %}">Navbar</a>
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                        <a class="navbar-brand" href="{% url 'index' %}"><i class="fa-solid fa-house"></i></a>
+                        {% comment %} <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                                 <span class="navbar-toggler-icon"></span>
-                        </button>
+                        </button> {% endcomment %}
 
                         <ul class="navbar-nav">
-                                <li class="nav-item"><a hx-get="{% url 'exercise-catalogue' %}" hx-push-url="true"
+                                <li class="nav-item" hx-get="{% url 'exercise-catalogue' %}" hx-push-url="true"
                                         hx-target="#content" hx-swap="innerHTML" 
-                                        hx-indicator="#content-loader">Exercise Catalogue</a></li>
+                                        hx-indicator="#content-loader"><i class="fa-solid fa-list"></i></li>
                                 
                         </ul>
 
@@ -37,29 +37,35 @@
 
         <progress id="content-loader" class="htmx-indicator" max="100"></progress>
 
-        <div id="content">
+        <div id="content" style="width:100%">
                 {% block content %}
-                <div class="row" id="index-display">
+                <div class="row" id="index-display" style="width:100%">
                         <div class="col" hx-get="{% url 'exercise-catalogue' %}" hx-push-url="true"
                                 hx-target="#content" hx-swap="innerHTML" 
-                                hx-indicator="#content-loader" style="max-width:220px; text-align:center">
+                                hx-indicator="#content-loader" style="max-width:90%; text-align:center">
                                 <h5 style="text-align:center">Exercise Catalogue</h5>
-                                <img style="max-width:200px" src="{% static 'img/catalogue.jpg' %}"/>
+                                <img style="max-width:90%;" src="{% static 'img/catalogue.jpg' %}"/>
                         </div>
                         
                         {%if request.user.is_authenticated%}
                         <div class="col" 
-                                onClick="window.location.href = '{% url 'workouts' %}'" style="max-width:220px; text-align:center">
+                                onClick="window.location.href = '{% url 'workouts' %}'" style="max-width:90%; text-align:center">
                                 <h5 style="text-align:center">Workouts</h5>
-                                <img style="max-width:200px" src="{% static 'img/catalogue.jpg' %}"/>
+                                <img style="max-width:90%;" src="{% static 'img/catalogue.jpg' %}"/>
+                        </div>
+
+                        <div class="col" 
+                                onClick="window.location.href = '{% url 'weighins' %}'" style="max-width:90%; text-align:center">
+                                <h5 style="text-align:center">Weigh Ins</h5>
+                                <img style="max-width:90%;" src="{% static 'img/catalogue.jpg' %}"/>
                         </div>
                         {%endif%}
                         
                         {%if request.user.is_superuser%}
                         <div class="col" 
-                                onClick="window.location.href = '{% url 'exercise-create' %}'" style="max-width:220px; text-align:center">
+                                onClick="window.location.href = '{% url 'exercise-create' %}'" style="max-width:90%; text-align:center">
                                 <h5 style="text-align:center">Create Exercise</h5>
-                                <img style="max-width:200px" src="{% static 'img/catalogue.jpg' %}"/>
+                                <img style="max-width:90%;" src="{% static 'img/catalogue.jpg' %}"/>
                         </div>
                         {%endif%}
                 </div>

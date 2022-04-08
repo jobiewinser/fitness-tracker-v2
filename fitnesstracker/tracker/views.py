@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from rest_framework.views import APIView
 
+from django.core.mail import EmailMessage
 from django.db.models import Q
 # class LoginView(TemplateView):
 #     template_name = 'tracker/login.html'
@@ -143,6 +144,15 @@ def workouts(request, **kwargs):
         return render(request, 'tracker/workouts_full.html', {'workouts': workouts})
     return render(request, 'tracker/workouts.html', {'workouts': workouts})
 
+def weighins(request, **kwargs):
+    weighins = WeighIn.objects.filter(profile=request.user.profile).order_by('-recorded')
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'tracker/weighins_full.html', {'weighins': weighins})
+    return render(request, 'tracker/weighins.html', {'weighins': weighins})
+
+
+
+
 class EditWorkoutView(APIView):
     def get(self, request, **kwargs):
         try:
@@ -227,3 +237,64 @@ def add_exercise_set(request, **kwargs):
 
 # def add_exercise_super_set_button(request, **kwargs):
 #     return render(request, 'tracker/exercise_super_set_button.html', {'counter':kwargs['counter']})
+def send_email(subject, message, to=[]):
+    msg = EmailMessage(subject,
+                        message, to=to)
+    msg.send()
+
+
+
+def add_weigh_in(request, **kwargs):
+    weighins = WorkOut.objects.filter(profile=request.user.profile)
+    if request.META.get("HTTP_HX_REQUEST") != 'true':
+        return render(request, 'tracker/weighins_full.html', {'weighins': weighins})
+    return render(request, 'tracker/weighins.html', {'weighins': weighins})
+
+class AddWeighinView(APIView):
+    def get(self, request, **kwargs):
+        weight_units = WEIGHT_UNIT_CHOICES
+        if request.META.get("HTTP_HX_REQUEST") != 'true':
+            return render(request, 'tracker/add_weighin.html', {'user': request.user, 'weight_units': weight_units})
+        return render(request, 'tracker/add_weighin.html', {'user': request.user, 'weight_units': weight_units})
+    def post(self, request, **kwargs):
+        weight = convert_weight_to_grams(float(request.POST['weight_float']), request.POST['weight_unit_choice'])
+        WeighIn.objects.get_or_create(profile=request.user.profile, weight=weight)
+    
+# class WeighIn(models.Model):
+#     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+#     profile = models.ForeignKey(Profile, null=False, blank=False, on_delete=models.CASCADE)
+#     recorded = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+#     weight = models.FloatField(null=False, blank=False) 
+
+
+        return HttpResponse(status=200, headers={'HX-Redirect':'/weighins'})
+
+# WEIGHT_UNIT_CHOICES = (
+#         ('a', 'kg'),
+#         ('b', 'lb'),
+#         ('c', 'stone'),
+#     )
+def convert_weight_to_grams(weight_float, weight_unit_choice):
+    if weight_unit_choice == 'a':
+        return weight_float * 1000
+    elif weight_unit_choice == 'b':
+        return weight_float / 0.0022046
+    elif weight_unit_choice == 'c':
+        return weight_float / 0.00015747
+
+def convert_weight_from_grams_htmx_handler(request):
+    print(request.GET['weight_float'])
+    try:
+        return HttpResponse(str(convert_weight_from_grams(float(request.GET['weight_float']), request.GET['weight_unit_choice'])))
+    except:
+        return HttpResponse("")
+def convert_weight_from_grams(weight_float, weight_unit_choice):
+    if weight_unit_choice == 'a':
+        return "{} kg".format(str(round(weight_float / 1000, 1)))
+    elif weight_unit_choice == 'b':
+        return "{} lb".format(str(round(weight_float / 453.59237, 1)))
+    elif weight_unit_choice == 'c':
+        i, d = divmod(weight_float * 0.00015747, 1)
+        return "{} stone {} lb".format(str(i), str(round(d/1.4, 1)))
+        
+    

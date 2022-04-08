@@ -18,10 +18,21 @@
         
         {%block styles%}
         <style>
-            * {
-                {%if user.profile.fav_colour%}
-                    background-color:{{user.profile.fav_colour}}
+            *, body, .dropdown-item {
+                {%if user.profile.fav_colour == 'a'%}
+                background-color:black;
+                color:white;
+                {%elif user.profile.fav_colour == 'b'%}
+                background-color:darkblue;
+                color:white;
+                {%elif user.profile.fav_colour == 'c'%}
+                background-color:darkslategray;
+                color:white;
+                {%else%}
+                background-color:white;
+                color:black;
                 {%endif%}
+                font-size: 20px
             }
             .htmx-indicator {
                 transition: opacity 50ms ease-in !important;
@@ -40,7 +51,7 @@
 
     </head>
 
-    <body>
+    <body style="width:100%; min-height:100%;">
         {%block body%}
         No Body Loaded
         {%endblock%}

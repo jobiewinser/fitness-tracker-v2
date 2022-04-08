@@ -1,0 +1,10 @@
+<form hx-post="/add-weighin/">
+    {% csrf_token %}
+    <input name="weight_float" name="weight_float" type="number" step="0.1"/>
+    <select style="max-width:400px" class="select2 form-control form-select p-3" id="weight_unit_choice" name="weight_unit_choice"> 
+        {% for weight_unit in weight_units%}
+            <option {%if weight_unit.0 == user.profile.weight_unit%}selected{%endif%} value="{{weight_unit.0}}">{{weight_unit.1}}</option>
+        {%endfor%}
+    </select>
+    <button type="submit">Save</button>
+</form>

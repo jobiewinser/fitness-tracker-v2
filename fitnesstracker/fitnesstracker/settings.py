@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tracker',
+    'celery'
 ]
 
 MIDDLEWARE = [
@@ -142,3 +143,34 @@ AUTH_USER_MODEL = "tracker.CustomUser"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+BROKER_URL = 'redis://localhost:6379'
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/London'
+# EMAIL_HOST='fitness.jobiewinser.co.uk'
+
+import smtplib, ssl
+from django.core.mail import send_mail
+
+os.environ['EMAIL_USE_TLS'] = "True"
+os.environ['EMAIL_HOST'] = "smtp.gmail.com"
+os.environ['EMAIL_PORT'] = "587"
+os.environ['EMAIL_HOST_USER'] = "jobiewinser@gmail.com"
+os.environ['EMAIL_HOST_PASSWORD'] = "SecretWord1998"
+
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT") 
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
+SERVER_EMAIL = os.getenv("EMAIL_HOST_USER")

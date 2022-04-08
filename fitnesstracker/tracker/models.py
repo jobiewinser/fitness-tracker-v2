@@ -28,23 +28,26 @@ class ImageModel(models.Model):
     def save(self, *args, **kwargs):
         return super(ImageModel, self).save(*args, **kwargs)
 
+WEIGHT_UNIT_CHOICES = (
+        ('a', 'kg'),
+        ('b', 'lb'),
+        ('c', 'stone'),
+    )
+COLOUR_CHOICES = (
+        ('a', 'Black'),
+        ('b', 'DarkBlue'),
+        ('c', 'DarkSlateGray'),
+        ('d', 'White'),
+    )
+
 class Profile(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.OneToOneField(CustomUser, related_name='profile', on_delete=models.CASCADE)
     display_name = models.CharField(max_length=20, blank=False, null=False, unique=True)
     pictures = models.ManyToManyField(ImageModel)
-    COLOUR_CHOICES = (
-        ('a', 'Black'),
-        ('b', 'DarkBlue'),
-        ('c', 'DarkSlateGray'),
-    )
     fav_colour = models.CharField(max_length=20, default="a", choices=COLOUR_CHOICES)
     
-    WEIGHT_UNIT_CHOICES = (
-        ('a', 'kg'),
-        ('b', 'lb'),
-        ('c', 'stone'),
-    )
+    
     weight_unit = models.CharField(max_length=20, default="a", choices=WEIGHT_UNIT_CHOICES)
     def save(self, *args, **kwargs):
         return super(Profile, self).save(*args, **kwargs)
@@ -90,4 +93,4 @@ class WeighIn(models.Model):
     guid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     profile = models.ForeignKey(Profile, null=False, blank=False, on_delete=models.CASCADE)
     recorded = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-    weight = models.FloatField(null=False, blank=False) 
+    weight = models.FloatField(null=False, blank=False) #Saved in grams and converted to the user's preference

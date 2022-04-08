@@ -18,7 +18,11 @@ urlpatterns = [
     path('logout', views.LogoutView.as_view(), name='logout'),
     path('exercise-create', views.ExerciseCreateView.as_view(), name='exercise-create'),
     path('workouts', views.workouts, name='workouts'),
+    path('weighins', views.weighins, name='weighins'),
     path('profile', views.ProfileView.as_view(), name='profile'),
     path('sign-up', views.SignUpView.as_view(), name='sign-up'),
+    path('convert_weight_from_grams_htmx_handler/', views.convert_weight_from_grams_htmx_handler, name='convert_weight_from_grams_htmx_handler'),
+
+    path('add-weighin/', views.AddWeighinView.as_view(), name='add-weighin'),
     
 ]
