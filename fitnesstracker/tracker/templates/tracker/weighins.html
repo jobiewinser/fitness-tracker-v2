@@ -1,3 +1,4 @@
+
 <button class="btn btn-warning"
     hx-get="/add-weighin/" hx-push-url="false" hx-target="#add-weighin" hx-swap="innerHTML" hx-indicator="#content-loader">
     Add Weigh In
@@ -6,36 +7,135 @@
 <div id="add-weighin">
 </div>
 
+<div class="row">
+    <div class="chart-container col">
+    </div>
+    <div class="chart-container col-10" style="text-align:center; position:inline;; width:600px;">
+        <canvas id="weighin_chart" ></canvas>
+    </div>
+    <div class="chart-container col">
+    </div>
+</div>
 
-<table  class="table">
-    <thead>
-        <tr>
-            <th scope="col">
-                Weight
-            </th>
-            <th scope="col">
-                Date
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        {%for weighin in weighins%}
-        <tr>
-            <td hx-get="/convert_weight_from_grams_htmx_handler/" hx-push-url="false"
-                hx-swap="innerHTML" 
-                hx-indicator="#weight_{{weighin.pk}}" 
-                id="#weight_{{weighin.pk}}" 
-                hx-trigger="revealed"
-                hx-include="#weight_unit_choice_{{weighin.pk}}, #weight_float_{{weighin.pk}}"
-            >
-                <input hidden id="weight_unit_choice_{{weighin.pk}}" name="weight_unit_choice" value="{{user.profile.weight_unit}}"/>
-                <input hidden id="weight_float_{{weighin.pk}}" name="weight_float" value="{{weighin.weight}}"/>
-                <img class="htmx-indicator-small" src="https://htmx.org/img/bars.svg"/>
-            </td>
-            <td>
-                {{weighin.recorded}}
-            </td>
-        </tr>
-        {%endfor%}
-    </tbody>
-</table>
+<div>
+    <table id="weighin_table" class="table">
+        <thead>
+            <tr>
+                <th scope="col">
+                    Weight
+                </th>
+                <th scope="col">
+                    Date
+                </th>
+                <th scope="col">
+                    
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for weighin in weighins%}
+            <tr id="row_{{weighin.pk}}">
+                <input hidden id="weighin_pk_{{weighin.pk}}" name="weighin_pk" value="{{weighin.pk}}"/>
+                <td hx-get="/convert_weight_from_grams_htmx_handler/" hx-push-url="false"
+                    hx-swap="innerHTML" 
+                    id="#weight_{{weighin.pk}}" 
+                    hx-trigger="revealed"
+                    hx-include="#weighin_pk_{{weighin.pk}}"
+                >
+                    
+
+                    
+                    <img class="htmx-indicator-small" src="https://htmx.org/img/bars.svg"/>
+                </td>
+                <td>
+                    {{weighin.recorded}}
+                </td>
+                <td>
+                    <button  hx-post="/delete_weigh_in/" hx-push-url="false"
+                    id="#delete_{{weighin.pk}}" 
+                    hx-trigger="click"
+                    hx-include="#weighin_pk_{{weighin.pk}}">Delete</button>
+                </td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let dt = null;
+    $(document).ready(function() {
+        dt = $('#weighin_table').DataTable({
+            "order": [],
+            "drawCallback": function( settings ) {
+                resetAndRedrawChart()
+                window.scroll(0, 1);
+                window.scroll(0, 0);
+            }
+        });
+        document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+            console.log("afterOnLoad")
+            dt.draw()
+            resetAndRedrawChart()
+        });
+        document.body.addEventListener("remove_redraw", function(evt){
+            console.log("trigger remove_redraw");
+            console.log(evt)
+            dt
+                .row( $(evt.srcElement).parents('tr') )
+                .remove()
+                .draw();
+
+
+            dt.draw()
+            resetAndRedrawChart()
+        })
+    })
+
+    const ctx = document.getElementById('weighin_chart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Weight ({{user.profile.get_weight_unit_display}})',
+                data: [],
+                backgroundColor: ['rgba(255, 206, 86, 1)'],
+                borderColor: ['rgba(255, 206, 86, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                    }
+                }
+            },
+            responsive: true,
+            animation: {
+                duration: 0
+            },
+        }
+    });
+    function addToWeighinChart(weight, date){
+        myChart.data.labels.push(date);
+        myChart.data.datasets.forEach((dataset) => {
+                dataset.data.push(weight);
+        });
+        myChart.update();
+    }
+
+    function resetAndRedrawChart(){
+        myChart.data.datasets.forEach((dataset) => {
+            dataset.data = [];
+            myChart.data.labels = [];
+        });
+        $( ".raw_data" ).each(function( index ) {
+            addToWeighinChart(parseFloat($(this).data('weight')),$(this).data('recorded'))
+        });
+    }
+    
+    
+</script>

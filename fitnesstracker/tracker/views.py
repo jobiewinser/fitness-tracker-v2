@@ -102,20 +102,6 @@ def index(request):
         request.user.get_or_create_profile()
     return render(request, 'tracker/index.html')
 
-def token(request):
-    api_token = 'fake_token'
-    if request.META.get("HTTP_HX_REQUEST") != 'true':
-        # return redirect('index')
-        return render(request, 'tracker/token_full.html', {'token': api_token})
-
-    return render(request, 'tracker/token.html', {'token': api_token})
-
-def support(request):
-    if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'tracker/support_full.html')
-
-    return render(request, 'tracker/support.html')
-
 def exercise_catalogue(request):
     queryset = Exercise.objects.filter()
     if request.META.get("HTTP_HX_REQUEST") != 'true':
@@ -244,17 +230,16 @@ def send_email(subject, message, to=[]):
 
 
 
-def add_weigh_in(request, **kwargs):
-    weighins = WorkOut.objects.filter(profile=request.user.profile)
-    if request.META.get("HTTP_HX_REQUEST") != 'true':
-        return render(request, 'tracker/weighins_full.html', {'weighins': weighins})
-    return render(request, 'tracker/weighins.html', {'weighins': weighins})
+def delete_weigh_in(request, **kwargs):
+    weighin = WeighIn.objects.get(pk=request.POST['weighin_pk'], profile=request.user.profile)
+    weighin.delete()
+
+
+    return HttpResponse(status=200, headers={'HX-Trigger':'remove_redraw', 'pk':weighin.pk})
 
 class AddWeighinView(APIView):
     def get(self, request, **kwargs):
         weight_units = WEIGHT_UNIT_CHOICES
-        if request.META.get("HTTP_HX_REQUEST") != 'true':
-            return render(request, 'tracker/add_weighin.html', {'user': request.user, 'weight_units': weight_units})
         return render(request, 'tracker/add_weighin.html', {'user': request.user, 'weight_units': weight_units})
     def post(self, request, **kwargs):
         weight = convert_weight_to_grams(float(request.POST['weight_float']), request.POST['weight_unit_choice'])
@@ -283,18 +268,25 @@ def convert_weight_to_grams(weight_float, weight_unit_choice):
         return weight_float / 0.00015747
 
 def convert_weight_from_grams_htmx_handler(request):
-    print(request.GET['weight_float'])
     try:
-        return HttpResponse(str(convert_weight_from_grams(float(request.GET['weight_float']), request.GET['weight_unit_choice'])))
-    except:
+        weighin = WeighIn.objects.get(pk=request.GET['weighin_pk'], profile=request.user.profile)
+        raw_value = convert_weight_from_grams(float(weighin.weight), request.user.profile.weight_unit)
+        return HttpResponse \
+            (str(raw_value[0]) + \
+                "<span hidden class='raw_data' data-weight='{}' data-recorded='{}' data-weighin='{}'></span>".format(raw_value[1], weighin.recorded, weighin.pk)
+        )
+    except Exception as e:
         return HttpResponse("")
 def convert_weight_from_grams(weight_float, weight_unit_choice):
     if weight_unit_choice == 'a':
-        return "{} kg".format(str(round(weight_float / 1000, 1)))
+        raw_value = weight_float / 1000
+        return ("{} kg".format(str(round(raw_value, 1))), raw_value)
     elif weight_unit_choice == 'b':
-        return "{} lb".format(str(round(weight_float / 453.59237, 1)))
+        raw_value = weight_float / 453.59237
+        return ("{} lb".format(str(round(raw_value, 1))), raw_value)
     elif weight_unit_choice == 'c':
-        i, d = divmod(weight_float * 0.00015747, 1)
-        return "{} stone {} lb".format(str(i), str(round(d/1.4, 1)))
+        raw_value = weight_float * 0.00015747
+        i, d = divmod(raw_value, 1)
+        return ("{} stone {} lb".format(str(i), str(round(d/1.4, 1))), raw_value)
         
     
